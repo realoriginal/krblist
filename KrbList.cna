@@ -1,0 +1,29 @@
+#
+# Lists kerberos tickets for the current logon
+# session.
+#
+alias krblist {
+	local('$barch $handle $object $bargs');
+
+	#
+	# Opens the COFF object file using aggresor
+	# within the same directory as the current
+	# script.
+	#
+	$barch  = barch( $1 );
+	$handle = openf( script_resource( "KrbListBof. $+ $barch $+ .o" ) );
+	$object = readb( $handle, -1 );
+	closef( $handle );
+
+	#
+	# Deploy the COFF file with relocations applied
+	# to resolve the jumps.
+	#
+	btask( $1, "Tasked Beacon to list kerberos tickets for the current logon session." );
+	beacon_inline_execute( $1, $object, "KrbListGo", $null );
+};
+
+beacon_command_register( "krblist", "Lists kerberos tickets for the current logon session",
+			 "Use: krblist\n".
+			 "\n".
+			 "Lists Kerberos tickets for the current logon information." );
